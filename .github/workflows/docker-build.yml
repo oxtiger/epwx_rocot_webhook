@@ -71,7 +71,7 @@ jobs:
           IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           PULL_CMD="docker pull ${IMAGE}:${{ env.TAG }}"
           MSG=$(cat <<EOF
-          🎉 Tigris WeChat Bot 构建成功！
+          🎉 Epwx Rocot Webhook 构建成功！
           
           📦 镜像名称: ${IMAGE}
           🕒 构建时间: ${{ env.DATE_TAG }}
@@ -92,7 +92,7 @@ jobs:
         if: failure()
         run: |
           FAIL_MSG=$(cat <<EOF
-          ❌ Tigris WeChat Bot 构建失败！
+          ❌ Epwx Rocot Webhook 构建失败！
           
           🔖 分支/标签: ${{ github.ref_name }}
           🔁 Commit SHA: $(echo ${{ github.sha }} | cut -c1-7)
