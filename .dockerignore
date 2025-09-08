@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+.github
+
+# Docker
+Dockerfile
+.dockerignore
+
+# IDE配置
+.idea
+.vscode
+*.sublime-*
+
+# 测试文件
+test_*.go
+
+# 临时文件
+tmp/
+temp/
+
+# 日志文件
+*.log
+
+# 构建产物
+bin/
+
+# 其他不需要的文件
+README.md
+LICENSE
