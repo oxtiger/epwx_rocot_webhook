@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -39,7 +40,11 @@ func NewWXBizMsgCrypt(token, encodingAESKey, receiveID string) (*WXBizMsgCrypt, 
 // VerifyURL 验证URL函数，用于验证回调URL的有效性
 func (w *WXBizMsgCrypt) VerifyURL(msgSignature, timestamp, nonce, echoStr string) (string, error) {
 	// 验证签名
-	if !w.verifySignature(msgSignature, timestamp, nonce, echoStr) {
+	timestampInt, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		return "", fmt.Errorf("parse timestamp error: %v", err)
+	}
+	if !w.verifySignature(msgSignature, int(timestampInt), nonce, echoStr) {
 		return "", errors.New("signature verification failed")
 	}
 
@@ -61,7 +66,11 @@ func (w *WXBizMsgCrypt) VerifyURL(msgSignature, timestamp, nonce, echoStr string
 // DecryptMsg 解密消息
 func (w *WXBizMsgCrypt) DecryptMsg(msgSignature, timestamp, nonce, encryptedMsg string) ([]byte, error) {
 	// 验证签名
-	if !w.verifySignature(msgSignature, timestamp, nonce, encryptedMsg) {
+	timestampInt, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("parse timestamp error: %v", err)
+	}
+	if !w.verifySignature(msgSignature, int(timestampInt), nonce, encryptedMsg) {
 		return nil, errors.New("signature verification failed")
 	}
 
@@ -81,7 +90,7 @@ func (w *WXBizMsgCrypt) DecryptMsg(msgSignature, timestamp, nonce, encryptedMsg 
 }
 
 // EncryptMsg 加密消息
-func (w *WXBizMsgCrypt) EncryptMsg(replyMsg []byte, timestamp, nonce string) (string, string, string, error) {
+func (w *WXBizMsgCrypt) EncryptMsg(replyMsg []byte, timestamp int, nonce string) (string, string, int, error) {
 	// 生成16字节的随机字符串
 	randomBytes := make([]byte, 16)
 	for i := 0; i < 16; i++ {
@@ -102,7 +111,7 @@ func (w *WXBizMsgCrypt) EncryptMsg(replyMsg []byte, timestamp, nonce string) (st
 	// 加密消息
 	encryptedMsg, err := w.AESCipher.Encrypt(plaintext.Bytes())
 	if err != nil {
-		return "", "", "", fmt.Errorf("encrypt message error: %v", err)
+		return "", "", 0, fmt.Errorf("encrypt message error: %v", err)
 	}
 
 	// 生成签名
@@ -112,15 +121,15 @@ func (w *WXBizMsgCrypt) EncryptMsg(replyMsg []byte, timestamp, nonce string) (st
 }
 
 // 验证签名
-func (w *WXBizMsgCrypt) verifySignature(msgSignature, timestamp, nonce, encryptedMsg string) bool {
+func (w *WXBizMsgCrypt) verifySignature(msgSignature string, timestamp int, nonce, encryptedMsg string) bool {
 	expectedSignature := w.generateSignature(timestamp, nonce, encryptedMsg)
 	return strings.EqualFold(expectedSignature, msgSignature)
 }
 
 // 生成签名
-func (w *WXBizMsgCrypt) generateSignature(timestamp, nonce, encryptedMsg string) string {
+func (w *WXBizMsgCrypt) generateSignature(timestamp int, nonce, encryptedMsg string) string {
 	// 将token、timestamp、nonce、encryptedMsg四个参数按照字典序排序
-	params := []string{w.Token, timestamp, nonce, encryptedMsg}
+	params := []string{w.Token, strconv.Itoa(timestamp), nonce, encryptedMsg}
 	sort.Strings(params)
 
 	// 将四个参数字符串拼接成一个字符串

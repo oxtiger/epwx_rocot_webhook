@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -155,8 +154,8 @@ func handleWXBizEncrypt(c *gin.Context, req EncryptRequest) {
 	// 使用请求中的时间戳和随机数，或者生成新的
 	timestamp := req.Timestamp
 	nonce := req.Nonce
-	if timestamp == "" {
-		timestamp = strconv.FormatInt(time.Now().Unix(), 10)
+	if timestamp == 0 {
+		timestamp = int(time.Now().Unix())
 	}
 	if nonce == "" {
 		nonce = crypto.GenerateRandomString(16)

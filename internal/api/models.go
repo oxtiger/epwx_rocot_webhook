@@ -16,7 +16,7 @@ type EncryptRequest struct {
 	// 企业微信加密参数
 	Token     string `json:"token,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
 	ReceiveID string `json:"receive_id,omitempty" binding:"omitempty"`
-	Timestamp string `json:"timestamp,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
+	Timestamp int    `json:"timestamp,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
 	Nonce     string `json:"nonce,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
 }
 
@@ -27,7 +27,7 @@ type EncryptResponse struct {
 	// 企业微信加密时的签名
 	Signature string `json:"signature,omitempty"`
 	// 企业微信加密时的时间戳
-	Timestamp string `json:"timestamp,omitempty"`
+	Timestamp int `json:"timestamp,omitempty"`
 	// 企业微信加密时的随机数
 	Nonce string `json:"nonce,omitempty"`
 }
