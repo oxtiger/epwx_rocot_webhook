@@ -46,6 +46,15 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
 
+      - name: Set environment variables
+        id: env
+        run: |
+          echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "REGISTRY=ghcr.io" >> $GITHUB_ENV
+          echo "DATE_TAG=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
+          echo "TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -55,3 +64,52 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          
+      - name: 📢 Notify WeCom
+        if: success()
+        run: |
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          PULL_CMD="docker pull ${IMAGE}:${{ env.TAG }}"
+          MSG=$(cat <<EOF
+          🎉 Tigris WeChat Bot 构建成功！
+          
+          📦 镜像名称: ${IMAGE}
+          🕒 构建时间: ${{ env.DATE_TAG }}
+          🔖 标签: ${{ env.TAG }}
+          🔁 Commit SHA: ${{ env.SHORT_SHA }}
+          
+          📥 拉取命令:
+          \`\`\`
+          ${PULL_CMD}
+          \`\`\`
+          EOF
+          )
+          curl -sS -X POST "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=6375401e-2185-4d38-a634-8bdf29625b84" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg text "$MSG" '{msgtype:"text", text:{content:$text}}')"
+
+      - name: ❌ Notify failure
+        if: failure()
+        run: |
+          FAIL_MSG=$(cat <<EOF
+          ❌ Tigris WeChat Bot 构建失败！
+          
+          🔖 分支/标签: ${{ github.ref_name }}
+          🔁 Commit SHA: $(echo ${{ github.sha }} | cut -c1-7)
+          📅 失败时间: $(date +'%Y-%m-%d %H:%M:%S')
+          
+          🔗 查看详情: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          请检查构建日志并修复问题。
+          EOF
+          )
+          curl -sS -X POST "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=6375401e-2185-4d38-a634-8bdf29625b84" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg text "$FAIL_MSG" '{msgtype:"text", text:{content:$text}}')"
+
+      - name: 🎉 Notify success
+        if: success()
+        run: |
+          echo "✅ Docker镜像构建并推送成功！"
+          echo "📍 镜像地址: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+          echo "📢 企业微信通知已发送"

@@ -46,11 +46,11 @@ type DecryptRequest struct {
 	PrivateKey string `json:"private_key,omitempty" binding:"required_if=Algorithm rsa,omitempty"`
 
 	// 企业微信解密参数
-	Token      string `json:"token,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
-	ReceiveID  string `json:"receive_id,omitempty" binding:"omitempty"`
-	Signature  string `json:"signature,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
-	Timestamp  string `json:"timestamp,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
-	Nonce      string `json:"nonce,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
+	Token     string `json:"token,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
+	ReceiveID string `json:"receive_id,omitempty" binding:"omitempty"`
+	Signature string `json:"signature,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
+	Timestamp string `json:"timestamp,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
+	Nonce     string `json:"nonce,omitempty" binding:"required_if=Algorithm wxbiz,omitempty"`
 }
 
 // DecryptResponse 解密响应模型

@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/twq/epwx_rocot_webhook/internal/api"
+	"github.com/oxtiger/epwx_rocot_webhook/internal/api"
 )
 
 func main() {

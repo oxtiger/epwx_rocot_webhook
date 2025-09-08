@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/twq/epwx_rocot_webhook/internal/crypto"
+	"github.com/oxtiger/epwx_rocot_webhook/internal/crypto"
 )
 
 // EncryptHandler 处理加密请求

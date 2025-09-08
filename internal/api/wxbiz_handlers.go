@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/twq/epwx_rocot_webhook/internal/crypto"
+	"github.com/oxtiger/epwx_rocot_webhook/internal/crypto"
 )
 
 // WXBizVerifyHandler 处理企业微信URL验证请求
