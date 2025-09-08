@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"time"
@@ -201,9 +202,21 @@ func handleAESDecrypt(c *gin.Context, req DecryptRequest) {
 		return
 	}
 
-	c.JSON(http.StatusOK, DecryptResponse{
-		Plaintext: string(plaintext),
-	})
+	// 尝试解析明文为JSON
+	var jsonData interface{}
+	if err := json.Unmarshal(plaintext, &jsonData); err == nil {
+		// 如果成功解析为JSON，则返回JSON对象
+		c.JSON(http.StatusOK, gin.H{
+			"plaintext": jsonData,
+			"format":    "json",
+		})
+	} else {
+		// 如果不是有效的JSON，则返回原始字符串
+		c.JSON(http.StatusOK, DecryptResponse{
+			Plaintext: string(plaintext),
+			Format:    "text",
+		})
+	}
 }
 
 // RSA解密处理
@@ -228,9 +241,21 @@ func handleRSADecrypt(c *gin.Context, req DecryptRequest) {
 		return
 	}
 
-	c.JSON(http.StatusOK, DecryptResponse{
-		Plaintext: string(plaintext),
-	})
+	// 尝试解析明文为JSON
+	var jsonData interface{}
+	if err := json.Unmarshal(plaintext, &jsonData); err == nil {
+		// 如果成功解析为JSON，则返回JSON对象
+		c.JSON(http.StatusOK, gin.H{
+			"plaintext": jsonData,
+			"format":    "json",
+		})
+	} else {
+		// 如果不是有效的JSON，则返回原始字符串
+		c.JSON(http.StatusOK, DecryptResponse{
+			Plaintext: string(plaintext),
+			Format:    "text",
+		})
+	}
 }
 
 // 企业微信解密处理
@@ -255,9 +280,18 @@ func handleWXBizDecrypt(c *gin.Context, req DecryptRequest) {
 		return
 	}
 
-	c.JSON(http.StatusOK, DecryptResponse{
-		Plaintext: string(plaintext),
-	})
+	// 尝试解析明文为JSON
+	var jsonData interface{}
+	if err := json.Unmarshal(plaintext, &jsonData); err == nil {
+		// 如果成功解析为JSON，则返回JSON对象
+		c.JSON(http.StatusOK, jsonData)
+	} else {
+		// 如果不是有效的JSON，则返回错误
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "Decryption failed: " + err.Error(),
+		})
+	}
 }
 
 // AES密钥生成处理

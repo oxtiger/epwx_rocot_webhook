@@ -57,6 +57,8 @@ type DecryptRequest struct {
 type DecryptResponse struct {
 	// 解密后的明文
 	Plaintext string `json:"plaintext"`
+	// 明文格式，可能是"text"或"json"
+	Format string `json:"format,omitempty"`
 }
 
 // ErrorResponse 错误响应模型
